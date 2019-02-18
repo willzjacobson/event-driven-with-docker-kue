@@ -1,6 +1,6 @@
 # What's this?
 This repo demonstrates an implementation of Event Driven Architecture using open source tools.
-Here's my blog article explaining its uses (and what's missing from it): <URL>
+[Here's](http://www.offroadnode.com/2019/02/18/event-driven-architecture-nodejs-microservices-docker-compose-kue/) my blog article explaining its uses (and what's missing from it):
 Fork and extend as you please!
 
 Tools used are:

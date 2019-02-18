@@ -1,33 +1,26 @@
 const kue = require('kue');
 // Hook kue up to redis
 const queue = kue.createQueue({
-  redis: {
-    port: Number(process.env.REDIS_PORT),
-    host: process.env.REDIS_HOST,
-  }
+    redis: {
+        port: Number(process.env.REDIS_PORT),
+        host: process.env.REDIS_HOST,
+    }
 });
 
-// Create a job
-const job = queue
-  .create('message', { message: 'i love you' })
-  .priority('high') // enum: 'low', 'normal', 'medium', 'high', 'critical'. Also accepts a number.
-  .delay(2000) // delay 2s before making the job 'active' (can also pass it a JS Date object to scedule a time)
-  .attempts(5) // make 5 attempts before failing the job
-  .backoff({ delay: 5 * 1000, type: 'fixed' }) // if job fails, wait 5s before next attempt
-  .removeOnComplete(true) // remove job from redis when complete
-  .save(err => {
-    if (err) console.log('Job creation error:', err);
-    else console.log('Created job:', job.id, new Date() );
-  });
+let count = 0;
 
-// Listen to events on the job
-job
-  .on('failed attempt', (errMsg, attemptNumber) =>
-    console.log('Job id', job.id, 'failed on attempt', attemptNumber, 'with error message:', errMsg, new Date()))
-  .on('complete', result =>
-    console.log('Job id', job.id, 'completed with data:', result, new Date()));
-
-// Listen to events on the queue
-queue.on( 'error', err => {
-  console.log( 'Error in da queue: ', err );
+// Subscribe to a job with type 'message'
+queue.process('message', (job, done) => {
+    console.log('Received message:', job.data.message);
+    count++;
+    // fail 3 times before completing the job (for demo)
+    if (count < 3) {
+        // callback expects error as first parameter
+        done(new Error('i dont love you'));
+    } else {
+        // null for error argument means the job passes.
+        // Include a payload of any JS datatype as 2nd argument
+        done(null, 'I love you too');
+    }
 });
+
