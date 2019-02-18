@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+
+  redis:
+    image: redis
+    container_name : redis
+    restart: always
+    expose:
+      - "6379"
+    networks:
+      - badass
+
+  service1:
+    build: ./service1
+    image: willzj/demo_service1:latest
+    container_name : service1
+    env_file: ./env
+    expose:
+      - "80"
+    networks:
+      - badass
+    depends_on:
+      - redis
+    # volumes:
+    #   - ./service1:/usr/src/app
+    # command: npm run dev
+
+  service2:
+    build: ./service2
+    image: willzj/demo_service2:latest
+    container_name : service2
+    env_file: ./env
+    expose:
+      - "80"
+    networks:
+      - badass
+    depends_on:
+      - redis
+    # volumes:
+    #   - ./service2:/usr/src/app
+    # command: npm run dev
+
+networks:
+  badass:
+    driver: bridge
